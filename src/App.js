@@ -1,0 +1,19 @@
+// src/App.js
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HostPage from './pages/HostPage';
+import ViewerPage from './pages/ViewerPage';
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HostPage />} />
+        <Route path="/host" element={<HostPage />} />
+        <Route path="/viewer" element={<ViewerPage />} />
+        <Route path="*" element={<div>404 Not Found</div>} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
