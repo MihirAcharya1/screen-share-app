@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { socket } from '../socket';
+import ViewerPage from './ViewerPage';
 
 const peerConnections = {};
 
 const HostPage = () => {
+  const [isHost, setIshost] = useState(false);
+  const [isView, setIsView] = useState(false);
   const videoRef = useRef(null);
   const [roomId, setRoomId] = useState('');
   const [password, setPassword] = useState('');
@@ -117,36 +120,56 @@ const HostPage = () => {
   }, [stream]); // rebind when stream changes
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Host Screen</h2>
-      <input placeholder="Room ID" value={roomId} onChange={e => setRoomId(e.target.value)} />
-      <input placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
-      <select value={resolution} onChange={e => setResolution(e.target.value)}>
-        <option value="1280x720">720p</option>
-        <option value="1920x1080">1080p</option>
-        <option value="3840x2160">4K</option>
-      </select>
-      <button onClick={startSharing}>Start Sharing</button>
-      {stream && (
+    isHost ? (
+      <div style={{ padding: '20px' }}>
         <button onClick={() => {
-          const enabled = !audioEnabled;
-          stream.getAudioTracks().forEach(t => t.enabled = enabled);
-          setAudioEnabled(enabled);
-        }}>
-          {audioEnabled ? "Mute Audio" : "Unmute Audio"}
-        </button>
-      )}
-      {stream && (
-        <button onClick={stopSharing} className="bg-red-600 text-white px-4 py-2 rounded mt-4">
-          🛑 Stop Sharing
-        </button>
-      )}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%" }} />
-      <ul>
-        {viewers.map(id => <li key={id}>{id}</li>)}
-      </ul>
-    </div>
+          setIshost(false);
+          setIsView(false)
+        }}>back</button>
+        <h2>Host Screen</h2>
+        <input placeholder="Room ID" value={roomId} onChange={e => setRoomId(e.target.value)} />
+        <input placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+        <select value={resolution} onChange={e => setResolution(e.target.value)}>
+          <option value="1280x720">720p</option>
+          <option value="1920x1080">1080p</option>
+          <option value="3840x2160">4K</option>
+        </select>
+        <button onClick={startSharing}>Start Sharing</button>
+        {stream && (
+          <button onClick={() => {
+            const enabled = !audioEnabled;
+            stream.getAudioTracks().forEach(t => t.enabled = enabled);
+            setAudioEnabled(enabled);
+          }}>
+            {audioEnabled ? "Mute Audio" : "Unmute Audio"}
+          </button>
+        )}
+        {stream && (
+          <button onClick={stopSharing} className="bg-red-600 text-white px-4 py-2 rounded mt-4">
+            🛑 Stop Sharing
+          </button>
+        )}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%" }} />
+        <ul>
+          {viewers.map(id => <li key={id}>{id}</li>)}
+        </ul>
+      </div>) : isView ? (
+        <div style={{ padding: '20px' }}>
+          <button onClick={() => {
+            setIshost(false);
+            setIsView(false)
+          }}>back</button>
+          <ViewerPage />
+        </div>
+      ) : (
+      <div style={{ padding: '20px' }}>
+
+        <h2>Welcome to Screen Share App</h2>
+        <button onClick={() => setIshost(true)}>Host Screen</button>
+        <button onClick={() => setIsView(true)}>Join as Viewer</button>
+      </div>
+    )
   );
 };
 
