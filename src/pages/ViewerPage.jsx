@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { socket } from '../socket';
+import './ViewerPage.css';
 
 let currentPC = null;
 
@@ -8,17 +9,17 @@ const ViewerPage = () => {
   const [roomId, setRoomId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [mute, setMute] = useState(true);
+  const [playbackError, setPlaybackError] = useState(false);
 
   const joinRoom = () => {
     if (!roomId) return;
 
-    // Cleanup previous peer connection
     if (currentPC) {
       currentPC.close();
       currentPC = null;
     }
 
-    // Remove previous listeners
     socket.off('offer');
     socket.off('ice-candidate');
     socket.off('host-stopped');
@@ -28,13 +29,16 @@ const ViewerPage = () => {
     socket.emit('join-room', { roomId, password });
 
     const pc = new RTCPeerConnection({
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        // Add TURN here if needed
+      ],
     });
 
     currentPC = pc;
-
     const pendingCandidates = [];
     let remoteSet = false;
+    let attachedStream = null;
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
@@ -44,45 +48,36 @@ const ViewerPage = () => {
 
     pc.ontrack = (event) => {
       const stream = event.streams?.[0];
-      const track = event.track;
 
-      console.log("Track received:", track);
+      if (videoRef.current && stream && stream !== attachedStream) {
+        attachedStream = stream;
 
-      // Wait for real media frames to flow
-      track.onunmute = () => {
-        console.log("Track unmuted:", track);
+        console.log('Track received via ontrack');
+        console.log('Stream tracks:', stream.getTracks().map(t => `${t.kind}:${t.enabled}`));
 
-        if (videoRef.current && stream) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(err => console.error("Video playback failed", err));
-        }
+        videoRef.current.srcObject = stream;
 
-        // Extra debug
-        setTimeout(() => {
-          if (videoRef.current) {
-            const v = videoRef.current;
-            console.log("Video element state:", {
-              readyState: v.readyState,
-              srcObject: v.srcObject,
-              videoTracks: v.srcObject?.getVideoTracks()
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current
+            .play()
+            .then(() => {
+              console.log('Playback started');
+              setPlaybackError(false);
+            })
+            .catch((err) => {
+              console.error('Playback failed:', err);
+              setPlaybackError(true);
             });
-          }
-        }, 2000);
-      };
+        };
+      }
     };
 
     socket.on('offer', async ({ sdp, from }) => {
-      console.log("Received offer from:", from, sdp);
-      if (pc.signalingState !== 'stable') {
-        console.warn('Skipping offer: not in stable state', pc.signalingState);
-        return;
-      }
-
       try {
+        console.log('Received offer');
         await pc.setRemoteDescription(new RTCSessionDescription(sdp));
         remoteSet = true;
 
-        // Apply queued ICE
         pendingCandidates.forEach(c => pc.addIceCandidate(new RTCIceCandidate(c)));
         pendingCandidates.length = 0;
 
@@ -95,13 +90,12 @@ const ViewerPage = () => {
           type: "answer",
           from: socket.id
         });
-      } catch (error) {
-        console.error('Error handling offer:', error);
+      } catch (err) {
+        console.error('Error handling offer:', err);
       }
     });
 
     socket.on('ice-candidate', ({ from, candidate }) => {
-      console.log("Received ICE candidate from:", from, candidate);
       if (remoteSet) {
         pc.addIceCandidate(new RTCIceCandidate(candidate));
       } else {
@@ -110,9 +104,7 @@ const ViewerPage = () => {
     });
 
     socket.on('host-stopped', () => {
-      console.log("Host stopped screen sharing");
-      const videoEl = videoRef.current;
-      if (videoEl) videoEl.srcObject = null;
+      if (videoRef.current) videoRef.current.srcObject = null;
       pc.close();
     });
 
@@ -124,22 +116,66 @@ const ViewerPage = () => {
     socket.on('error-message', setError);
   };
 
+  const retryPlayback = () => {
+    if (videoRef.current) {
+      videoRef.current
+        .play()
+        .then(() => {
+          console.log('Manual playback succeeded');
+          setPlaybackError(false);
+        })
+        .catch((err) => {
+          console.error('Manual playback failed:', err);
+          setPlaybackError(true);
+        });
+    }
+  };
+
   return (
-    <div>
-      <h2>Viewer</h2>
-      <input placeholder="Room ID" value={roomId} onChange={e => setRoomId(e.target.value)} />
-      <input placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
-      <button onClick={joinRoom}>Join</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <video
-        id="remoteVideo"
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted={false}
-        controls
-        style={{ width: "100%", backgroundColor: "#000" }}
-      />
+    <div className="viewer-container">
+      <h2 className="viewer-title">Viewer</h2>
+
+      <div className="form-section">
+        <input
+          className="input-field"
+          placeholder="Room ID"
+          value={roomId}
+          onChange={e => setRoomId(e.target.value)}
+        />
+        <input
+          className="input-field"
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+        />
+        <div className="button-group">
+          <button className="button primary" onClick={joinRoom}>Join</button>
+          <button className="button secondary" onClick={() => setMute(!mute)}>
+            {mute ? 'Unmute' : 'Mute'}
+          </button>
+        </div>
+        {error && <p className="error-message">{error}</p>}
+      </div>
+
+      <div className="video-wrapper">
+        <video
+          id="remoteVideo"
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted={mute}
+          className="video-player"
+          style={{ width: '100%', backgroundColor: 'black' }}
+        />
+        {playbackError && (
+          <div className="playback-fallback">
+            <button onClick={retryPlayback} className="button fallback-btn">
+              ▶ Tap to Play Video
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

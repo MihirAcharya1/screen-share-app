@@ -1,0 +1,67 @@
+.host-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+}
+
+.form-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+input, select {
+  padding: 10px;
+  font-size: 1rem;
+  min-width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #2e86de;
+  color: white;
+  cursor: pointer;
+}
+
+button.stop-btn {
+  background: #e74c3c;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.video-preview {
+  width: 100%;
+  max-height: 400px;
+  margin-top: 1rem;
+  border-radius: 12px;
+  background: black;
+}
+
+.viewer-list {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.viewer-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.viewer-list li {
+  background: #f4f4f4;
+  margin: 5px 0;
+  padding: 6px 12px;
+  border-radius: 6px;
+}

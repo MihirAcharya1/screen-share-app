@@ -1,0 +1,98 @@
+.viewer-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.viewer-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.input-field {
+  padding: 0.6rem 0.8rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.button.primary {
+  background: #4CAF50;
+  color: white;
+}
+
+.button.secondary {
+  background: #2196F3;
+  color: white;
+}
+
+.button.primary:hover {
+  background: #45a049;
+}
+
+.button.secondary:hover {
+  background: #1976d2;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.video-wrapper {
+  position: relative;
+  margin-top: 1rem;
+}
+
+.playback-fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  z-index: 10;
+}
+
+.fallback-btn {
+  background: #ff9800;
+  color: white;
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.viewer-list {
+  margin-top: 1rem;
+  padding: 0;
+  list-style: none;
+}
