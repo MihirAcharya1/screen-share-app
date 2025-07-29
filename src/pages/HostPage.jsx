@@ -117,7 +117,7 @@ const HostPage = () => {
   }, [stream]); // rebind when stream changes
 
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h2>Host Screen</h2>
       <input placeholder="Room ID" value={roomId} onChange={e => setRoomId(e.target.value)} />
       <input placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
