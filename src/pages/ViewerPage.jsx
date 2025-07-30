@@ -28,10 +28,14 @@ const ViewerPage = () => {
 
     socket.emit('join-room', { roomId, password });
 
-    const pc = new RTCPeerConnection({
+    const pc = new RTCPeerConnection({  
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
-        // Add TURN here if needed
+        {
+          urls: 'turn:10.74.173.210:3479',
+          username: 'webrtc',
+          credential: 'secret'
+        }
       ],
     });
 
@@ -164,6 +168,7 @@ const ViewerPage = () => {
           ref={videoRef}
           autoPlay
           playsInline
+          controls
           muted={mute}
           className="video-player"
           style={{ width: '100%', backgroundColor: 'black' }}

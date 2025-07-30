@@ -19,11 +19,11 @@ const HostPage = () => {
   const createPC = (targetId) => {
     const pc = new RTCPeerConnection({
       iceServers: [{ urls: 'stun:stun.l.google.com:19302' },
-      // {
-      //   urls: 'turn:your.turn.server:3478',
-      //   username: roomId || 'user',
-      //   credential: password || 'pass'
-      // }
+      {
+          urls: 'turn:10.74.173.210:3479',
+          username: 'webrtc',
+          credential: 'secret'
+        }
       ],
     });
 
@@ -172,7 +172,7 @@ const HostPage = () => {
 
       {error && <p className="error">{error}</p>}
 
-      <video ref={videoRef} autoPlay playsInline muted className="video-preview" />
+      <video ref={videoRef} autoPlay controls playsInline muted className="video-preview" />
 
       <div className="viewer-list">
         <h3>👀 Viewers: {viewers.length}</h3>
