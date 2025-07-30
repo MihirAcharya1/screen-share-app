@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { socket } from '../socket';
 import './HostPage.css';
 
@@ -18,8 +18,9 @@ const HostPage = () => {
 
   const createPC = (targetId) => {
     const pc = new RTCPeerConnection({
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' },
-      {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        {
           urls: 'turn:10.74.173.210:3479',
           username: 'webrtc',
           credential: 'secret'
@@ -56,7 +57,7 @@ const HostPage = () => {
     return filtered.join('\r\n');
   };
 
-  const handleViewerJoined = async (viewerId) => {
+  const handleViewerJoined = useCallback(async (viewerId) => {
     const pc = createPC(viewerId);
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
@@ -77,7 +78,7 @@ const HostPage = () => {
       params.encodings[0].maxBitrate = 5_000_000;
       await sender.setParameters(params);
     }
-  };
+  }, [stream]);
 
   const startSharing = async () => {
     if (isMobile()) {
@@ -136,7 +137,7 @@ const HostPage = () => {
       socket.off('update-viewers');
       socket.off('error-message');
     };
-  }, [stream]);
+  }, [handleViewerJoined]);
 
   return (
     <div className="host-container">
