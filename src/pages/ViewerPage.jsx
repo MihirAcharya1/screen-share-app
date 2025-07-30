@@ -29,14 +29,15 @@ const ViewerPage = () => {
     socket.emit('join-room', { roomId, password });
 
     const pc = new RTCPeerConnection({  
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        {
-          urls: 'turn:10.74.173.210:3479',
-          username: 'webrtc',
-          credential: 'secret'
-        }
-      ],
+      // iceServers: [
+      //   { urls: 'stun:stun.l.google.com:19302' },
+      //   {
+      //     urls: 'turn:10.74.173.210:3479',
+      //     username: 'webrtc',
+      //     credential: 'secret'
+      //   }
+      // ],
+      iceServers: [{ urls: ["stun:bn-turn2.xirsys.com"] }, { username: "TJeUkPhj9ZPlDxawR5yeyfEkFbjX_X-OFaFUln4Ry86f0pO-qqNtE_DV83qBVhp1AAAAAGiJ1GBzaWJ1", credential: "340591b8-6d1d-11f0-b482-0242ac140004", urls: ["turn:bn-turn2.xirsys.com:80?transport=udp", "turn:bn-turn2.xirsys.com:3478?transport=udp", "turn:bn-turn2.xirsys.com:80?transport=tcp", "turn:bn-turn2.xirsys.com:3478?transport=tcp", "turns:bn-turn2.xirsys.com:443?transport=tcp", "turns:bn-turn2.xirsys.com:5349?transport=tcp"] }]
     });
 
     currentPC = pc;
